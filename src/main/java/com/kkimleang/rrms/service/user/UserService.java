@@ -3,15 +3,14 @@ package com.kkimleang.rrms.service.user;
 import com.fasterxml.jackson.databind.*;
 import com.kkimleang.rrms.entity.User;
 import com.kkimleang.rrms.entity.*;
-import com.kkimleang.rrms.enums.*;
+import com.kkimleang.rrms.enums.user.*;
 import com.kkimleang.rrms.exception.*;
-import com.kkimleang.rrms.payload.request.*;
-import com.kkimleang.rrms.payload.response.*;
-import com.kkimleang.rrms.repository.*;
+import com.kkimleang.rrms.payload.request.user.*;
+import com.kkimleang.rrms.payload.response.user.*;
+import com.kkimleang.rrms.repository.user.*;
 import com.kkimleang.rrms.util.*;
 import jakarta.servlet.http.*;
 import jakarta.transaction.*;
-import jakarta.validation.constraints.*;
 import java.io.*;
 import java.util.*;
 import lombok.*;
@@ -50,21 +49,12 @@ public class UserService {
         return filterIsDeleted(user);
     }
 
-    public boolean isExistingByEmail(@NotBlank @Email String email) {
-        try {
-            return userRepository.existsByEmail(email);
-        } catch (Exception e) {
-            log.error("Cannot check existing email: {}", email);
-            throw new RuntimeException("Cannot check existing user for email: " + email);
-        }
-    }
-
     public User createUser(SignUpRequest signUpRequest) {
         try {
             User user = new User();
             user.setUsername(signUpRequest.getUsername());
             user.setEmail(signUpRequest.getEmail());
-            user.setPassword(signUpRequest.getPassword());
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
             // Setup roles following the request, if empty role, set default role to ROLE_USER
             if (signUpRequest.getRoles().isEmpty()) {
                 Role userRole = roleService.findByName(AuthRole.NORMAL.name());
@@ -80,9 +70,7 @@ public class UserService {
                 });
             }
             user.setProvider(AuthProvider.LOCAL);
-            user.setUserStatus(AuthStatus.PENDING);
             user.setVerifyCode(UUID.randomUUID().toString());
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
             return userRepository.save(user);
         } catch (Exception e) {
             log.error("Cannot create user with email: {}", signUpRequest.getEmail(), e);
@@ -163,25 +151,9 @@ public class UserService {
 
     @CachePut(value = "user", key = "#user.email")
     @Transactional
-    public User updateUserProfile(User user) {
+    public User updateVerifyAndAuthStatus(User user, AuthStatus status) {
         try {
-            Integer updated = userRepository.updateAvatar(user.getId(), user.getProfilePicture());
-            if (updated == 1) {
-                return user;
-            } else {
-                throw new RuntimeException("Cannot update user profile with id: " + user.getId());
-            }
-        } catch (Exception e) {
-            log.error("Cannot update user with id: {}", user.getId(), e);
-            throw new ResourceNotFoundException("User", "id", user.getId());
-        }
-    }
-
-    @CachePut(value = "user", key = "#user.email")
-    @Transactional
-    public User updateAuthStatus(User user, AuthStatus status) {
-        try {
-            Integer success = userRepository.updateAuthStatus(user.getId(), status.name());
+            Integer success = userRepository.updateVerifyAndAuthStatus(user.getId(), status.name(), true);
             if (success == 1) {
                 log.info("User with id: {} is verified: {}", user.getId(), status.name());
                 return user;
@@ -194,14 +166,14 @@ public class UserService {
         }
     }
 
-    public User verifyActivateCode(String activateCode) {
+    public User findUserByVerifyCode(String verifyCode) {
         try {
-            User user = userRepository.findByVerifyCode(activateCode)
-                    .orElseThrow(() -> new ResourceNotFoundException("User", "activate code", activateCode));
+            User user = userRepository.findByVerifyCode(verifyCode)
+                    .orElseThrow(() -> new ResourceNotFoundException("User", "verify code", verifyCode));
             return filterIsDeleted(user);
         } catch (Exception e) {
-            log.error("Cannot verify user with activate code: {}", activateCode);
-            throw new ResourceNotFoundException("User", "activate code", activateCode);
+            log.error("Cannot verify user with activate code: {}", verifyCode);
+            throw new ResourceNotFoundException("User", "verify code", verifyCode);
         }
     }
 

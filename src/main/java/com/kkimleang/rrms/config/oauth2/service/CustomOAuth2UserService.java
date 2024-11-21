@@ -2,9 +2,9 @@ package com.kkimleang.rrms.config.oauth2.service;
 
 import com.kkimleang.rrms.config.oauth2.user.*;
 import com.kkimleang.rrms.entity.*;
-import com.kkimleang.rrms.enums.*;
+import com.kkimleang.rrms.enums.user.*;
 import com.kkimleang.rrms.exception.*;
-import com.kkimleang.rrms.repository.*;
+import com.kkimleang.rrms.repository.user.*;
 import com.kkimleang.rrms.service.user.*;
 import java.util.*;
 import lombok.*;

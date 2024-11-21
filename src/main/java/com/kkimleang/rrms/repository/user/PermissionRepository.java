@@ -1,4 +1,4 @@
-package com.kkimleang.rrms.repository;
+package com.kkimleang.rrms.repository.user;
 
 import com.kkimleang.rrms.entity.*;
 import java.util.*;

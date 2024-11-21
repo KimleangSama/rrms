@@ -9,13 +9,6 @@ spring:
     type: redis
     redis:
       time-to-live: 60000
-  datasource:
-    driver-class-name: ${DRIVER_CLASS_NAME:org.postgresql.Driver}
-    url: ${DATASOURCE_URL:jdbc:postgresql://localhost:5432/rrms}
-    username: ${DATASOURCE_USERNAME:postgres}
-    password: ${DATASOURCE_PASSWORD:postgres}
-    hikari:
-      schema: public
   jpa:
     hibernate:
       ddl-auto: update
@@ -24,10 +17,27 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: false
         show_sql: false
+  datasource:
+    driver-class-name: ${DRIVER_CLASS_NAME:org.postgresql.Driver}
+    url: ${DATASOURCE_URL:jdbc:postgresql://localhost:5432/rrms}
+    username: ${DATASOURCE_USERNAME:postgres}
+    password: ${DATASOURCE_PASSWORD:postgres}
+    hikari:
+      schema: public
+  flyway:
+    enabled: false
+    locations: classpath:db/migration/structure, classpath:db/migration/data
+    validate-on-migrate: true
+    default-schema: public
+    url: ${DATASOURCE_URL:jdbc:postgresql://localhost:5432/rrms}
+    user: ${DATASOURCE_USERNAME:postgres}
+    password: ${DATASOURCE_PASSWORD:postgres}
   data:
     redis:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
+      username: ${REDIS_USERNAME:redis}
+      password: ${REDIS_PASSWORD:redis}
   rabbitmq:
     host: ${RABBITMQ_HOST:localhost}
     port: ${RABBITMQ_PORT:5672}

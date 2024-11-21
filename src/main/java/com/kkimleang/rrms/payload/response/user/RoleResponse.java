@@ -1,4 +1,4 @@
-package com.kkimleang.rrms.payload.response;
+package com.kkimleang.rrms.payload.response.user;
 
 import com.kkimleang.rrms.entity.*;
 import java.io.*;

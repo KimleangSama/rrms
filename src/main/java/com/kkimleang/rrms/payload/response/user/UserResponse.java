@@ -1,7 +1,7 @@
-package com.kkimleang.rrms.payload.response;
+package com.kkimleang.rrms.payload.response.user;
 
 import com.kkimleang.rrms.entity.*;
-import com.kkimleang.rrms.enums.*;
+import com.kkimleang.rrms.enums.user.*;
 import java.io.*;
 import java.time.*;
 import java.util.*;

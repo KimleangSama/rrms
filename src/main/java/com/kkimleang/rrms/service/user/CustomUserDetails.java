@@ -1,7 +1,7 @@
 package com.kkimleang.rrms.service.user;
 
 import com.kkimleang.rrms.entity.User;
-import com.kkimleang.rrms.enums.*;
+import com.kkimleang.rrms.enums.user.*;
 import java.io.*;
 import java.util.*;
 import lombok.*;

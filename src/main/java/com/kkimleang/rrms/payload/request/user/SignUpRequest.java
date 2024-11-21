@@ -1,4 +1,4 @@
-package com.kkimleang.rrms.payload.request;
+package com.kkimleang.rrms.payload.request.user;
 
 import jakarta.validation.constraints.*;
 import java.util.*;

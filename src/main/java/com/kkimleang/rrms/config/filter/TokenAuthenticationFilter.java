@@ -1,7 +1,7 @@
 package com.kkimleang.rrms.config.filter;
 
 import com.kkimleang.rrms.entity.*;
-import com.kkimleang.rrms.repository.*;
+import com.kkimleang.rrms.repository.user.*;
 import com.kkimleang.rrms.service.user.*;
 import com.kkimleang.rrms.util.*;
 import jakarta.servlet.*;

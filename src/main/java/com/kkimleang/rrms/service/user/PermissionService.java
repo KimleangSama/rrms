@@ -1,7 +1,7 @@
 package com.kkimleang.rrms.service.user;
 
 import com.kkimleang.rrms.entity.*;
-import com.kkimleang.rrms.repository.*;
+import com.kkimleang.rrms.repository.user.*;
 import lombok.*;
 import org.springframework.stereotype.*;
 

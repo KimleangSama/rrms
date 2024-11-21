@@ -20,6 +20,7 @@ services:
     volumes:
       - ./data/redis:/data
     environment:
+      REDIS_USER: redis
       REDIS_PASSWORD: redis
     restart: unless-stopped
     networks:

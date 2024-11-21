@@ -1,6 +1,6 @@
 package com.kkimleang.rrms.entity;
 
-import com.kkimleang.rrms.enums.*;
+import com.kkimleang.rrms.enums.user.*;
 import com.redis.om.spring.annotations.*;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
@@ -18,7 +18,11 @@ import org.springframework.data.redis.core.*;
 @Table(name = "users", uniqueConstraints = {
         @UniqueConstraint(columnNames = {"email"}, name = "unq_email"),
         @UniqueConstraint(columnNames = {"username"}, name = "unq_username"),
-        @UniqueConstraint(columnNames = {"verify_code"}, name = "unq_verify_code")
+        @UniqueConstraint(columnNames = {"verify_code"}, name = "unq_verify_code"),
+        @UniqueConstraint(columnNames = {"assignment_code"}, name = "unq_assignment_code"),
+        @UniqueConstraint(columnNames = {"phone_number"}, name = "unq_phone_number"),
+        @UniqueConstraint(columnNames = {"bank_account_number"}, name = "unq_bank_account_number"),
+        @UniqueConstraint(columnNames = {"national_id"}, name = "unq_national_id")
 })
 public class User extends BaseEntityAudit {
     @Serial
@@ -41,6 +45,9 @@ public class User extends BaseEntityAudit {
     @Column(name = "verify_code")
     private String verifyCode; // For email verification
 
+    @Column(name = "assignment_code")
+    private String assignmentCode; // For email verification
+
     @Column(name = "verified")
     private Boolean verified;
 
@@ -61,6 +68,9 @@ public class User extends BaseEntityAudit {
 
     @Column(name = "nationality")
     private String nationality;
+
+    @Column(name = "national_id")
+    private String nationalId;
 
     @Column(name = "id_card_front")
     private String idCardFront;
@@ -91,7 +101,7 @@ public class User extends BaseEntityAudit {
     @NotNull
     @Column(name = "user_status")
     @Enumerated(EnumType.STRING)
-    private AuthStatus userStatus = AuthStatus.ACTIVE;
+    private AuthStatus userStatus = AuthStatus.PENDING;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinTable(name = "users_roles",

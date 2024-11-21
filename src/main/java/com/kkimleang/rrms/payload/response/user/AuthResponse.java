@@ -1,4 +1,4 @@
-package com.kkimleang.rrms.payload.response;
+package com.kkimleang.rrms.payload.response.user;
 
 import java.io.*;
 import java.time.*;

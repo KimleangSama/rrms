@@ -1,11 +1,11 @@
 package com.kkimleang.rrms.controller;
 
 import com.kkimleang.rrms.entity.User;
-import com.kkimleang.rrms.enums.*;
+import com.kkimleang.rrms.enums.user.*;
 import com.kkimleang.rrms.exception.*;
 import com.kkimleang.rrms.payload.*;
-import com.kkimleang.rrms.payload.request.*;
-import com.kkimleang.rrms.payload.response.*;
+import com.kkimleang.rrms.payload.request.user.*;
+import com.kkimleang.rrms.payload.response.user.*;
 import com.kkimleang.rrms.service.user.*;
 import jakarta.servlet.http.*;
 import jakarta.validation.*;
@@ -46,29 +46,33 @@ public class AuthController {
     @PostMapping("/register")
     public Response<UserResponse> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
         try {
-            if (userService.isExistingByEmail(signUpRequest.getEmail())) {
-                return Response.<UserResponse>badRequest()
-                        .setErrors("Email is already taken!")
-                        .setPayload(null);
+            User user = userService.findByEmail(signUpRequest.getEmail());
+            if (user != null) {
+                if (!user.getProvider().equals(AuthProvider.LOCAL)) {
+                    return Response.<UserResponse>badRequest()
+                            .setErrors("Look like you're already registered with " + user.getProvider() + " account. Please login with " + user.getProvider() + " account.");
+                } else {
+                    return Response.<UserResponse>badRequest()
+                            .setErrors("User with email " + signUpRequest.getEmail() + " already exists.");
+                }
             }
-            User user = userService.createUser(signUpRequest);
+            user = userService.createUser(signUpRequest);
             return Response.<UserResponse>created().setPayload(UserResponse.fromUser(user));
         } catch (Exception e) {
             log.error("User registration failed. Reason: {}", e.getMessage());
             return Response.<UserResponse>badRequest()
-                    .setErrors("User registration failed. Reason: " + e.getMessage())
-                    .setPayload(null);
+                    .setErrors("User registration failed. Reason: " + e.getMessage());
         }
     }
 
     @GetMapping("/verify")
     public Response<UserResponse> verifyUser(
-            @RequestParam("code") String activateCode
+            @RequestParam("code") String verifyCode
     ) {
         try {
-            User user = userService.verifyActivateCode(activateCode);
+            User user = userService.findUserByVerifyCode(verifyCode);
             if (user != null) {
-                user = userService.updateAuthStatus(user, AuthStatus.ACTIVE);
+                user = userService.updateVerifyAndAuthStatus(user, AuthStatus.ACTIVE);
                 return Response.<UserResponse>ok()
                         .setPayload(UserResponse.fromUser(user));
             } else {

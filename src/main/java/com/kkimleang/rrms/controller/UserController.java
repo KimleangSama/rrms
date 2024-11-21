@@ -3,7 +3,7 @@ package com.kkimleang.rrms.controller;
 import com.kkimleang.rrms.annotation.*;
 import com.kkimleang.rrms.entity.*;
 import com.kkimleang.rrms.payload.*;
-import com.kkimleang.rrms.payload.response.*;
+import com.kkimleang.rrms.payload.response.user.*;
 import com.kkimleang.rrms.service.user.*;
 import lombok.*;
 import lombok.extern.slf4j.*;

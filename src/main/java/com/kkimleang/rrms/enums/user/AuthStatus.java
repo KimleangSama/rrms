@@ -1,4 +1,4 @@
-package com.kkimleang.rrms.enums;
+package com.kkimleang.rrms.enums.user;
 
 public enum AuthStatus {
     PENDING,

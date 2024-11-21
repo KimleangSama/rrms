@@ -1,6 +1,6 @@
 package com.kkimleang.rrms.config.oauth2.user;
 
-import com.kkimleang.rrms.enums.*;
+import com.kkimleang.rrms.enums.user.*;
 import com.kkimleang.rrms.exception.*;
 import java.util.*;
 
