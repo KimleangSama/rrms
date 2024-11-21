@@ -1,0 +1,133 @@
+groups:
+  - name: SBMS-OllamaService-Alerts
+    rules:
+      - alert: Gateway-Service Is Down
+        expr: up{job="Gateway-Service"} == 0
+        for: 10s
+        labels:
+          severity: critical
+        annotations:
+          summary: "{{ $labels.application }} is down."
+          description: "The application {{ $labels.application }} is down for more than 10 seconds."
+      - alert: Config-Server Is Down
+        expr: up{job="Config-Server"} == 0
+        for: 10s
+        labels:
+          severity: critical
+        annotations:
+          summary: "{{ $labels.application }} is down."
+          description: "The application {{ $labels.application }} is down for more than 10 seconds."
+      - alert: RRMS Is Down
+        expr: up{job="RRMS"} == 0
+        for: 10s
+        labels:
+          severity: critical
+        annotations:
+          summary: "{{ $labels.application }} is down."
+          description: "The application {{ $labels.application }} is down for more than 10 seconds."
+      - alert: Discovery-Service Is Down
+        expr: up{job="Discovery-Service"} == 0
+        for: 10s
+        labels:
+          severity: critical
+        annotations:
+          summary: "{{ $labels.application }} is down."
+          description: "The application {{ $labels.application }} is down for more than 10 seconds."
+      - alert: Chat-Service Is Down
+        expr: up{job="Chat-Service"} == 0
+        for: 10s
+        labels:
+          severity: critical
+        annotations:
+          summary: "{{ $labels.application }} is down."
+          description: "The application {{ $labels.application }} is down for more than 10 seconds."
+      - alert: Content-Service Is Down
+        expr: up{job="Content-Service"} == 0
+        for: 10s
+        labels:
+          severity: critical
+        annotations:
+          summary: "{{ $labels.application }} is down."
+          description: "The application {{ $labels.application }} is down for more than 10 seconds."
+      - alert: Setting-Service Is Down
+        expr: up{job="Setting-Service"} == 0
+        for: 10s
+        labels:
+          severity: critical
+        annotations:
+          summary: "{{ $labels.application }} is down."
+          description: "The application {{ $labels.application }} is down for more than 10 seconds."
+      - alert: Mail-Service Is Down
+        expr: up{job="Mail-Service"} == 0
+        for: 10s
+        labels:
+          severity: critical
+        annotations:
+          summary: "{{ $labels.application }} is down."
+          description: "The application {{ $labels.application }} is down for more than 10 seconds."
+      - alert: Gateway-Service Is Back Up
+        expr: up{job="Gateway-Service"} == 1
+        for: 10s
+        labels:
+          severity: info
+        annotations:
+          summary: "{{ $labels.application }} is back up."
+          description: "The application {{ $labels.application }} is back up."
+      - alert: Config-Server Is Back Up
+        expr: up{job="Config-Server"} == 1
+        for: 10s
+        labels:
+          severity: info
+        annotations:
+          summary: "{{ $labels.application }} is back up."
+          description: "The application {{ $labels.application }} is back up."
+      - alert: RRMS Is Back Up
+        expr: up{job="RRMS"} == 1
+        for: 10s
+        labels:
+          severity: info
+        annotations:
+          summary: "{{ $labels.application }} is back up."
+          description: "The application {{ $labels.application }} is back up."
+      - alert: Discovery-Service Is Back Up
+        expr: up{job="Discovery-Service"} == 1
+        for: 10s
+        labels:
+          severity: info
+        annotations:
+          summary: "{{ $labels.application }} is back up."
+          description: "The application {{ $labels.application }} is back up."
+      - alert: Chat-Service Is Back Up
+        expr: up{job="Chat-Service"} == 1
+        for: 10s
+        labels:
+          severity: info
+        annotations:
+          summary: "{{ $labels.application }} is back up."
+          description: "The application {{ $labels.application }} is back up."
+      - alert: Content-Service Is Back Up
+        expr: up{job="Content-Service"} == 1
+        for: 10s
+        labels:
+          severity: info
+        annotations:
+          summary: "{{ $labels.application }} is back up."
+          description: "The application {{ $labels.application }} is back up."
+      - alert: Setting-Service Is Back Up
+        expr: up{job="Setting-Service"} == 1
+        for: 10s
+        labels:
+          severity: info
+        annotations:
+          summary: "{{ $labels.application }} is back up."
+          description: "The application {{ $labels.application }} is back up."
+      - alert: Mail-Service Is Back Up
+        expr: up{job="Mail-Service"} == 1
+        for: 10s
+        labels:
+          severity: info
+        annotations:
+          summary: "{{ $labels.application }} is back up."
+          description: "The application {{ $labels.application }} is back up."
+          
+        
