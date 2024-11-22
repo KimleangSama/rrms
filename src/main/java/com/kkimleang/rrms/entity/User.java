@@ -28,12 +28,16 @@ public class User extends BaseEntityAudit {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private String firstname;
-    private String lastname;
+    private String fullname;
     @NotNull
     @Indexed
     private String username;
     private String password;
+
+    @NotNull
+    @Column(name = "gender")
+    @Enumerated(EnumType.STRING)
+    private Gender gender = Gender.NOT_SAID;
 
     @NotNull
     @Indexed
@@ -46,7 +50,7 @@ public class User extends BaseEntityAudit {
     private String verifyCode; // For email verification
 
     @Column(name = "assignment_code")
-    private String assignmentCode; // For email verification
+    private String assignmentCode; // Like secret for landlord to assign a room
 
     @Column(name = "verified")
     private Boolean verified;
@@ -81,6 +85,9 @@ public class User extends BaseEntityAudit {
     @Column(name = "address_proof")
     private String addressProof;
 
+    @Column(name = "preferred_language")
+    private String preferredLanguage;
+
     @Column(name = "preferred_location")
     private String preferredLocation;
 
@@ -103,7 +110,7 @@ public class User extends BaseEntityAudit {
     @Enumerated(EnumType.STRING)
     private AuthStatus userStatus = AuthStatus.PENDING;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinTable(name = "users_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"),

@@ -5,6 +5,7 @@
 [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=KimleangSama_rrms&metric=bugs)](https://sonarcloud.io/dashboard?id=KimleangSama_rrms)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=KimleangSama_rrms&metric=coverage)](https://sonarcloud.io/dashboard?id=KimleangSama_rrms)
 [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=KimleangSama_rrms&metric=ncloc)](https://sonarcloud.io/dashboard?id=KimleangSama_rrms)
+[![CodeFactor](https://www.codefactor.io/repository/github/kimleangsama/rrms/badge)](https://www.codefactor.io/repository/github/kimleangsama/rrms)
 
 **Rental Room Management System (RRMS)** is a software application designed to streamline the management of rental properties. It serves as a centralized platform for landlords, property managers, and tenants to handle various tasks related to room or property rentals efficiently.
 

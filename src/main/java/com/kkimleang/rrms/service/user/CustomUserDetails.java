@@ -5,11 +5,13 @@ import com.kkimleang.rrms.enums.user.*;
 import java.io.*;
 import java.util.*;
 import lombok.*;
+import lombok.extern.slf4j.*;
 import org.springframework.security.core.*;
 import org.springframework.security.core.authority.*;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.security.oauth2.core.user.*;
 
+@Slf4j
 public class CustomUserDetails implements OAuth2User, UserDetails, Serializable {
     @Serial
     private static final long serialVersionUID = 5630699925975073133L;
@@ -36,8 +38,9 @@ public class CustomUserDetails implements OAuth2User, UserDetails, Serializable 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         final List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
+        log.info("UserRole: {}", user.getRoles());
         user.getRoles().forEach(role -> {
-            grantedAuthorities.add(new SimpleGrantedAuthority(role.getName()));
+            grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_" + role.getName()));
             role.getPermissions().forEach(permission -> {
                 grantedAuthorities.add(new SimpleGrantedAuthority(permission.getName()));
             });

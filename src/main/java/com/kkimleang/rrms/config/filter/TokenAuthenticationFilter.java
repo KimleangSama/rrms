@@ -30,7 +30,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
             String jwt = getJwtFromRequest(request);
             if (StringUtils.hasText(jwt) && tokenProvider.isTokenNotExpired(jwt)) {
                 email = tokenProvider.getUserEmailFromToken(jwt);
-                User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+                User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User with email " + email + " not found"));
                 if (tokenProvider.isTokenValid(jwt, user)) {
                     CustomUserDetails customUserDetails = new CustomUserDetails(user, null);
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(

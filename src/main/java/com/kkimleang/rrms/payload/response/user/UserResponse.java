@@ -14,8 +14,11 @@ import lombok.*;
 @AllArgsConstructor
 public class UserResponse implements Serializable {
     private UUID id;
+    private String fullname;
     private String username;
     private String email;
+    private String gender;
+    private String phoneNumber;
     private String profilePicture;
     private AuthProvider provider;
     private Set<RoleResponse> roles;
@@ -27,9 +30,12 @@ public class UserResponse implements Serializable {
         userResponse.setId(user.getId());
         userResponse.setUsername(user.getUsername());
         userResponse.setEmail(user.getEmail());
+        userResponse.setFullname(user.getFullname());
+        userResponse.setGender(user.getGender().name());
+        userResponse.setPhoneNumber(user.getPhoneNumber());
         userResponse.setProfilePicture(user.getProfilePicture());
         userResponse.setProvider(user.getProvider());
-        userResponse.setRoles(RoleResponse.fromRoles(user.getRoles()));
+        userResponse.setRoles(RoleResponse.fromRoles(user.getRoles(), false));
         userResponse.setUserStatus(user.getUserStatus());
         userResponse.setLastLoginAt(user.getLastLoginAt());
         return userResponse;

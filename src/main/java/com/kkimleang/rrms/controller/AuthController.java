@@ -1,5 +1,6 @@
 package com.kkimleang.rrms.controller;
 
+import com.kkimleang.rrms.annotation.*;
 import com.kkimleang.rrms.entity.User;
 import com.kkimleang.rrms.enums.user.*;
 import com.kkimleang.rrms.exception.*;
@@ -10,8 +11,10 @@ import com.kkimleang.rrms.service.user.*;
 import jakarta.servlet.http.*;
 import jakarta.validation.*;
 import java.io.*;
+import java.util.*;
 import lombok.*;
 import lombok.extern.slf4j.*;
+import org.springframework.security.access.prepost.*;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.web.bind.annotation.*;
@@ -46,22 +49,36 @@ public class AuthController {
     @PostMapping("/register")
     public Response<UserResponse> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
         try {
-            User user = userService.findByEmail(signUpRequest.getEmail());
+            User user = userService.findByEmailOrUsername(signUpRequest.getEmail(), signUpRequest.getUsername());
             if (user != null) {
                 if (!user.getProvider().equals(AuthProvider.LOCAL)) {
                     return Response.<UserResponse>badRequest()
                             .setErrors("Look like you're already registered with " + user.getProvider() + " account. Please login with " + user.getProvider() + " account.");
                 } else {
                     return Response.<UserResponse>badRequest()
-                            .setErrors("User with email " + signUpRequest.getEmail() + " already exists.");
+                            .setErrors("User with email " + signUpRequest.getEmail() + " or username " + signUpRequest.getUsername() + " already exists.");
                 }
             }
             user = userService.createUser(signUpRequest);
             return Response.<UserResponse>created().setPayload(UserResponse.fromUser(user));
         } catch (Exception e) {
-            log.error("User registration failed. Reason: {}", e.getMessage());
+            log.error("User registration failed. Reason: {}", e.getMessage(), e);
             return Response.<UserResponse>badRequest()
                     .setErrors("User registration failed. Reason: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/check-roles")
+    @PreAuthorize("authenticated")
+    public Response<Set<RoleResponse>> getUserRoles(@CurrentUser CustomUserDetails currentUser) {
+        try {
+            User user = userService.findByEmail(currentUser.getEmail());
+            Set<RoleResponse> roles = RoleResponse.fromRoles(user.getRoles(), true);
+            return Response.<Set<RoleResponse>>ok()
+                    .setPayload(roles);
+        } catch (Exception e) {
+            return Response.<Set<RoleResponse>>exception()
+                    .setErrors(e.getMessage());
         }
     }
 
@@ -77,7 +94,7 @@ public class AuthController {
                         .setPayload(UserResponse.fromUser(user));
             } else {
                 return Response.<UserResponse>badRequest()
-                        .setErrors("User verification failed.")
+                        .setErrors("Verification code may have already been used or expired.")
                         .setPayload(null);
             }
         } catch (ResourceNotFoundException e) {
@@ -85,8 +102,9 @@ public class AuthController {
                     .setErrors("Verification code may have already been used or expired.")
                     .setPayload(null);
         } catch (Exception e) {
+            log.error("User verification failed. Reason: {}", e.getMessage(), e);
             return Response.<UserResponse>exception()
-                    .setErrors("User verification failed. " + e.getMessage())
+                    .setErrors("User verification failed. Reason: " + e.getMessage())
                     .setPayload(null);
         }
     }
