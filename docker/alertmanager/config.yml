@@ -15,14 +15,14 @@ route:
 receivers:
   - name: "critical-alerts"
     telegram_configs:
-      - bot_token: "7649626879:AAHWygm1hp0gLVjPyTjIlibRszeo4ql3SVA"
+      - bot_token: "invoked"
         chat_id: 712381319
         api_url: https://api.telegram.org
         message: "{{ range .Alerts }} 🔥 Alert: {{ .Annotations.summary }}\nDescription: {{ .Annotations.description }}\nSeverity: {{ .Labels.severity }}\n{{ end }}"
 
   - name: "info-alerts"
     telegram_configs:
-      - bot_token: "7649626879:AAHWygm1hp0gLVjPyTjIlibRszeo4ql3SVA"
+      - bot_token: "invoked"
         chat_id: 712381319
         api_url: https://api.telegram.org
         message: "{{ range .Alerts }} 🔔 Alert: {{ .Annotations.summary }}\nDescription: {{ .Annotations.description }}\nSeverity: {{ .Labels.severity }}\n{{ end }}"

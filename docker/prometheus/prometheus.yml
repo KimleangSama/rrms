@@ -24,48 +24,6 @@ scrape_configs:
   - job_name: "RRMS"
     metrics_path: "/actuator/prometheus"
     static_configs:
-      - targets: ["host.docker.internal:8888"]
+      - targets: ["host.docker.internal:10000"]
         labels:
           application: "RRMS"
-
-  - job_name: "Chat-Service"
-    metrics_path: "/actuator/prometheus"
-    static_configs:
-      - targets: ["host.docker.internal:9990"]
-        labels:
-          application: Chat-Service
-
-  - job_name: 'Content-Service'
-    metrics_path: "/actuator/prometheus"
-    static_configs:
-      - targets: ["host.docker.internal:9991"] # Not good in production
-        labels:
-          application: Content-Service
-
-  - job_name: 'Setting-Service'
-    metrics_path: "/actuator/prometheus"
-    static_configs:
-      - targets: ["host.docker.internal:9992"] # Not good in production
-        labels:
-          application: Setting-Service
-
-  - job_name: 'Mail-Service'
-    metrics_path: "/actuator/prometheus"
-    static_configs:
-      - targets: ["host.docker.internal:9995"] # Not good in production
-        labels:
-          application: Mail-Service
-
-  - job_name: 'Notification-Service'
-    metrics_path: "/actuator/prometheus"
-    static_configs:
-      - targets: [ "host.docker.internal:9996" ] # Not good in production
-        labels:
-          application: Notification-Service
-
-  - job_name: 'Config-Server'
-    metrics_path: "/actuator/prometheus"
-    static_configs:
-      - targets: ["host.docker.internal:9999"] # Not good in production
-        labels:
-          application: Config-Server
