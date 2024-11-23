@@ -42,7 +42,9 @@ public class Property extends BaseEntityAudit {
     private String commune;
     private String district;
     private String province;
+    @NotNull
     private String email;
+    @NotNull
     private String contact;
     private String zipCode;
     @NotNull
@@ -76,25 +78,4 @@ public class Property extends BaseEntityAudit {
             uniqueConstraints = {@UniqueConstraint(columnNames = {"property_id", "characteristic_id"}, name = "unq_property_characteristic")}
     )
     private Set<PropertyCharacteristic> propertyCharacteristics = new HashSet<>();
-
-    public static Property fromCreationRequest(CreatePropertyRequest request) {
-        Property property = new Property();
-        property.setName(request.getName());
-        property.setEmail(request.getEmail());
-        property.setContact(request.getContact());
-        property.setDescription(request.getDescription());
-        property.setPictureCover(request.getPictureCover());
-        property.setAddressProof(request.getAddressProof());
-        property.setVillage(request.getVillage());
-        property.setCommune(request.getCommune());
-        property.setDistrict(request.getDistrict());
-        property.setProvince(request.getProvince());
-        property.setZipCode(request.getZipCode());
-        property.setAddressGMap(request.getAddressGMap());
-        property.setLatitude(request.getLatitude());
-        property.setLongitude(request.getLongitude());
-        property.setPropertyStatus(PropertyStatus.valueOf(request.getStatus()));
-        property.setPropertyType(PropertyType.valueOf(request.getType()));
-        return property;
-    }
 }

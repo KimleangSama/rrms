@@ -7,6 +7,7 @@ import com.kkimleang.rrms.payload.request.property.*;
 import com.kkimleang.rrms.payload.response.property.*;
 import com.kkimleang.rrms.service.property.*;
 import com.kkimleang.rrms.service.user.*;
+import java.util.*;
 import lombok.*;
 import org.springframework.security.access.prepost.*;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +30,24 @@ public class PropertyController {
                     .setErrors(e.getMessage());
         } catch (Exception e) {
             return Response.<PropertyResponse>exception()
+                    .setErrors(e.getMessage());
+        }
+    }
+
+    @GetMapping("/all")
+    public Response<List<PropertyResponse>> getAllProperties(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size
+    ) {
+        try {
+            List<PropertyResponse> propertyResponses = propertyService.getPagingProperties(page, size);
+            return Response.<List<PropertyResponse>>ok()
+                    .setPayload(propertyResponses);
+        } catch (ResourceNotFoundException e) {
+            return Response.<List<PropertyResponse>>notFound()
+                    .setErrors(e.getMessage());
+        } catch (Exception e) {
+            return Response.<List<PropertyResponse>>exception()
                     .setErrors(e.getMessage());
         }
     }

@@ -1,6 +1,7 @@
 package com.kkimleang.rrms.payload.response.property;
 
 import com.kkimleang.rrms.entity.*;
+import com.kkimleang.rrms.enums.property.*;
 import java.io.*;
 import java.util.*;
 import lombok.*;
@@ -47,11 +48,24 @@ public class PropertyResponse implements Serializable {
         propertyResponse.setAddressGMap(property.getAddressGMap());
         propertyResponse.setLatitude(property.getLatitude());
         propertyResponse.setLongitude(property.getLongitude());
-        propertyResponse.setStatus(property.getPropertyStatus().name());
-        propertyResponse.setType(property.getPropertyType().name());
+        try {
+            propertyResponse.setStatus(property.getPropertyStatus().name());
+            propertyResponse.setType(property.getPropertyType().name());
+        } catch (Exception e) {
+            propertyResponse.setStatus(PropertyStatus.PENDING.name());
+            propertyResponse.setType(PropertyType.HOUSE.name());
+        }
         propertyResponse.setCharacteristics(
                 CharacteristicResponse.fromCharacteristics(property.getPropertyCharacteristics())
         );
         return propertyResponse;
+    }
+
+    public static List<PropertyResponse> fromProperties(List<Property> properties) {
+        List<PropertyResponse> propertyResponses = new ArrayList<>();
+        for (Property property : properties) {
+            propertyResponses.add(fromProperty(property));
+        }
+        return propertyResponses;
     }
 }

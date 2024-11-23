@@ -2,6 +2,7 @@ services:
   postgresql:
     image: postgres:latest
     container_name: postgresql
+    restart: on-failure
     ports:
       - "5432:5432"
     environment:
@@ -15,6 +16,7 @@ services:
   redis:
     image: redis/redis-stack-server:latest
     container_name: redis
+    restart: on-failure
     ports:
       - "6379:6379"
     volumes:
@@ -22,12 +24,12 @@ services:
     environment:
       REDIS_USER: redis
       REDIS_PASSWORD: redis
-    restart: unless-stopped
     networks:
       - backend
   rabbitmq:
     image: rabbitmq:latest
     container_name: rabbitmq
+    restart: on-failure
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -42,6 +44,7 @@ services:
   loki:
     image: grafana/loki:latest
     container_name: loki
+    restart: on-failure
     command: [ "-config.file=/etc/loki/local-config.yaml" ]
     ports:
       - "3100:3100"
@@ -50,6 +53,7 @@ services:
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
+    restart: on-failure
     command:
       - --enable-feature=exemplar-storage
       - --config.file=/etc/prometheus/prometheus.yml
@@ -63,6 +67,7 @@ services:
   tempo:
     image: grafana/tempo:latest
     container_name: tempo
+    restart: on-failure
     command: [ "-config.file=/etc/tempo.yaml" ]
     volumes:
       - ./docker/tempo/tempo.yml:/etc/tempo.yaml
@@ -75,6 +80,7 @@ services:
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
+    restart: on-failure
     volumes:
       - ./docker/grafana:/etc/grafana/provisioning/datasources
       - ./data/grafana:/var/lib/grafana
@@ -85,6 +91,7 @@ services:
   alertmanager:
     image: prom/alertmanager:latest
     container_name: alertmanager
+    restart: on-failure
     command:
       - --config.file=/etc/alertmanager/config.yml
     volumes:
@@ -93,18 +100,6 @@ services:
       - "9093:9093"
     networks:
       - monitoring
-#  cadvisor:
-#    image: google/cadvisor:latest
-#    container_name: cadvisor
-#    ports:
-#      - "8080:8080"
-#    volumes:
-#      - /:/rootfs:ro
-#      - /var/run:/var/run:rw
-#      - /sys:/sys:ro
-#      - /var/lib/docker/:/var/lib/docker:ro
-#    networks:
-#      - monitoring
 volumes:
   data:
 networks:
