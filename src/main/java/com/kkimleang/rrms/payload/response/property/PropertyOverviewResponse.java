@@ -4,6 +4,7 @@ import com.kkimleang.rrms.entity.Property;
 import com.kkimleang.rrms.entity.User;
 import com.kkimleang.rrms.enums.property.PropertyStatus;
 import com.kkimleang.rrms.enums.property.PropertyType;
+import com.kkimleang.rrms.exception.ResourceNotFoundException;
 import lombok.*;
 
 import java.io.Serializable;

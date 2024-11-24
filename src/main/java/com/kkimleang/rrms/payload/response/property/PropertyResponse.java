@@ -6,6 +6,7 @@ import com.kkimleang.rrms.enums.property.*;
 import java.io.*;
 import java.util.*;
 
+import com.kkimleang.rrms.exception.ResourceDeletedException;
 import lombok.*;
 
 @Getter
@@ -41,36 +42,44 @@ public class PropertyResponse implements Serializable {
     private Boolean hasPrivilege = false;
 
     public static PropertyResponse fromProperty(Property property) {
-        PropertyResponse propertyResponse = mappingProperty(property);
-        try {
-            propertyResponse.setStatus(property.getPropertyStatus().name());
-            propertyResponse.setType(property.getPropertyType().name());
-        } catch (Exception e) {
-            propertyResponse.setStatus(PropertyStatus.PENDING.name());
-            propertyResponse.setType(PropertyType.HOUSE.name());
+        if (property.getDeletedBy() == null && property.getDeletedAt() == null) {
+            PropertyResponse propertyResponse = mappingProperty(property);
+            try {
+                propertyResponse.setStatus(property.getPropertyStatus().name());
+                propertyResponse.setType(property.getPropertyType().name());
+            } catch (Exception e) {
+                propertyResponse.setStatus(PropertyStatus.PENDING.name());
+                propertyResponse.setType(PropertyType.HOUSE.name());
+            }
+            propertyResponse.setCharacteristics(
+                    CharacteristicResponse.fromCharacteristics(property.getPropertyCharacteristics())
+            );
+            return propertyResponse;
+        } else {
+            throw new ResourceDeletedException("Property", property.getDeletedAt().toString());
         }
-        propertyResponse.setCharacteristics(
-                CharacteristicResponse.fromCharacteristics(property.getPropertyCharacteristics())
-        );
-        return propertyResponse;
     }
 
     public static PropertyResponse fromProperty(User user, Property property) {
-        PropertyResponse propertyResponse = mappingProperty(property);
-        if (user.getId().equals(property.getUser().getId())) {
-            propertyResponse.setHasPrivilege(true);
+        if (property.getDeletedBy() == null && property.getDeletedAt() == null) {
+            PropertyResponse propertyResponse = mappingProperty(property);
+            if (user.getId().equals(property.getUser().getId())) {
+                propertyResponse.setHasPrivilege(true);
+            }
+            try {
+                propertyResponse.setStatus(property.getPropertyStatus().name());
+                propertyResponse.setType(property.getPropertyType().name());
+            } catch (Exception e) {
+                propertyResponse.setStatus(PropertyStatus.PENDING.name());
+                propertyResponse.setType(PropertyType.HOUSE.name());
+            }
+            propertyResponse.setCharacteristics(
+                    CharacteristicResponse.fromCharacteristics(property.getPropertyCharacteristics())
+            );
+            return propertyResponse;
+        } else {
+            throw new ResourceDeletedException("Property", property.getDeletedAt().toString());
         }
-        try {
-            propertyResponse.setStatus(property.getPropertyStatus().name());
-            propertyResponse.setType(property.getPropertyType().name());
-        } catch (Exception e) {
-            propertyResponse.setStatus(PropertyStatus.PENDING.name());
-            propertyResponse.setType(PropertyType.HOUSE.name());
-        }
-        propertyResponse.setCharacteristics(
-                CharacteristicResponse.fromCharacteristics(property.getPropertyCharacteristics())
-        );
-        return propertyResponse;
     }
 
     public static List<PropertyResponse> fromProperties(List<Property> properties) {

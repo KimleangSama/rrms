@@ -32,7 +32,7 @@ public class PropertyController {
             PropertyResponse propertyResponse = propertyService.createProperty(user, request);
             return Response.<PropertyResponse>created()
                     .setPayload(propertyResponse);
-        } catch (ResourceCreationException e) {
+        } catch (ResourceForbiddenException e) {
             return Response.<PropertyResponse>badRequest()
                     .setErrors(e.getMessage());
         } catch (DataIntegrityViolationException e) {
@@ -110,6 +110,7 @@ public class PropertyController {
     }
 
     @PatchMapping("/{id}/edit-contact")
+    @PreAuthorize("hasRole('LANDLORD') or hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
     public Response<PropertyResponse> editProperty(
             @CurrentUser CustomUserDetails user,
             @PathVariable("id") UUID propertyId,
@@ -122,7 +123,7 @@ public class PropertyController {
         } catch (ResourceNotFoundException e) {
             return Response.<PropertyResponse>notFound()
                     .setErrors(e.getMessage());
-        } catch (ResourceCreationException e) {
+        } catch (ResourceForbiddenException e) {
             return Response.<PropertyResponse>badRequest()
                     .setErrors(e.getMessage());
         } catch (Exception e) {
@@ -132,6 +133,7 @@ public class PropertyController {
     }
 
     @PatchMapping("/{id}/edit-info")
+    @PreAuthorize("hasRole('LANDLORD') or hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
     public Response<PropertyResponse> editPropertyInfo(
             @CurrentUser CustomUserDetails user,
             @PathVariable("id") UUID propertyId,
@@ -144,8 +146,27 @@ public class PropertyController {
         } catch (ResourceNotFoundException e) {
             return Response.<PropertyResponse>notFound()
                     .setErrors(e.getMessage());
-        } catch (ResourceCreationException e) {
+        } catch (ResourceForbiddenException e) {
             return Response.<PropertyResponse>badRequest()
+                    .setErrors(e.getMessage());
+        } catch (Exception e) {
+            return Response.<PropertyResponse>exception()
+                    .setErrors(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{id}/delete")
+    @PreAuthorize("hasRole('LANDLORD') or hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
+    public Response<PropertyResponse> deleteProperty(@CurrentUser CustomUserDetails user, @PathVariable("id") UUID propertyId) {
+        try {
+            PropertyResponse propertyResponse = propertyService.deleteProperty(user, propertyId);
+            return Response.<PropertyResponse>ok()
+                    .setPayload(propertyResponse);
+        } catch (ResourceNotFoundException | ResourceDeletedException e) {
+            return Response.<PropertyResponse>notFound()
+                    .setErrors(e.getMessage());
+        } catch (ResourceForbiddenException e) {
+            return Response.<PropertyResponse>accessDenied()
                     .setErrors(e.getMessage());
         } catch (Exception e) {
             return Response.<PropertyResponse>exception()
