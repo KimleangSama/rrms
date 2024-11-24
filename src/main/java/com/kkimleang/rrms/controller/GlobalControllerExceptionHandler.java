@@ -16,13 +16,13 @@ import java.util.Set;
 @RestControllerAdvice
 public class GlobalControllerExceptionHandler {
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public Response<?> handleValidationExceptions(MethodArgumentTypeMismatchException ex) {
+    public Response<Object> handleValidationExceptions(MethodArgumentTypeMismatchException ex) {
         return Response.badRequest()
                 .setErrors(ex.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Response<?> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
+    public Response<Object> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
         Set<String> errors = new HashSet<>();
         ex.getBindingResult().getAllErrors()
                 .forEach(error -> {
@@ -34,7 +34,7 @@ public class GlobalControllerExceptionHandler {
     }
 
     @ExceptionHandler(BadCredentialsException.class)
-    public Response<?> handleBadCredentialsException(BadCredentialsException ex) {
+    public Response<Object> handleBadCredentialsException(BadCredentialsException ex) {
         return Response.wrongCredentials().setErrors(ex.getMessage());
     }
 }

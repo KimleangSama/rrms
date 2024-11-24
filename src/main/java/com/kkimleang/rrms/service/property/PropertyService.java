@@ -23,6 +23,9 @@ import org.springframework.stereotype.*;
 @Service
 @RequiredArgsConstructor
 public class PropertyService {
+    private final String RESOURCE = "Property";
+    private final String FAILED_GET_EXCEPTION = "Failed to get property ";
+    private final String FAILED_EDIT_EXCEPTION = "Failed to edit property ";
     private final PropertyRepository propertyRepository;
 
     public PropertyResponse createProperty(CustomUserDetails user, CreatePropertyRequest request) {
@@ -32,7 +35,7 @@ public class PropertyService {
             }
             User currentUser = user.getUser();
             if (propertyRepository.existsByUserIdAndName(currentUser.getId(), request.getName())) {
-                throw new ResourceCreationException("Property with name " + request.getName() + " already exists in your assets", currentUser.getUsername());
+                throw new ResourceCreationException(RESOURCE + " with name " + request.getName() + " already exists in your assets", currentUser.getUsername());
             }
             Property property = new Property();
             PropertyMapper.createPropertyFromCreatePropertyRequest(property, request);
@@ -53,15 +56,15 @@ public class PropertyService {
             Pageable pageable = PageRequest.of(page, size);
             Page<Property> properties = propertyRepository.findAll(pageable);
             if (properties.isEmpty()) {
-                throw new ResourceNotFoundException("Property", "of size " + size + " at page " + page, properties);
+                throw new ResourceNotFoundException(RESOURCE, "of size " + size + " at page " + page, properties);
             }
             List<Property> propertyList = properties.getContent();
             return PropertyResponse.fromProperties(propertyList);
         } catch (ResourceNotFoundException e) {
-            log.error("Failed to get all properties", e);
+            log.error(FAILED_GET_EXCEPTION + "{}", e.getMessage(), e);
             throw e;
         } catch (Exception e) {
-            log.error("Failed to get all properties", e);
+            log.error(FAILED_GET_EXCEPTION + "{}", e.getMessage(), e);
             throw new RuntimeException("Failed to get all properties", e);
         }
     }
@@ -71,17 +74,17 @@ public class PropertyService {
     public PropertyResponse findPropertyById(CustomUserDetails user, UUID propertyId) {
         try {
             Property property = propertyRepository.findById(propertyId)
-                    .orElseThrow(() -> new ResourceNotFoundException("Property", "Id", propertyId));
+                    .orElseThrow(() -> new ResourceNotFoundException(RESOURCE, "Id", propertyId));
             if (user == null || user.getUser() == null) {
                 return PropertyResponse.fromProperty(property);
             }
             return PropertyResponse.fromProperty(user.getUser(), property);
         } catch (ResourceNotFoundException e) {
-            log.error("Failed to find property {}", e.getMessage(), e);
+            log.error(FAILED_GET_EXCEPTION + "{}", e.getMessage(), e);
             throw e;
         } catch (Exception e) {
-            log.error("Failed to find property {}", e.getMessage(), e);
-            throw new RuntimeException("Failed to find property", e);
+            log.error(FAILED_GET_EXCEPTION + "{}", e.getMessage(), e);
+            throw new RuntimeException(FAILED_GET_EXCEPTION, e);
         }
     }
 
@@ -90,17 +93,17 @@ public class PropertyService {
     public PropertyResponse findPropertyOverviewById(CustomUserDetails user, UUID propertyId) {
         try {
             Property property = propertyRepository.findById(propertyId)
-                    .orElseThrow(() -> new ResourceNotFoundException("Property", "Id", propertyId));
+                    .orElseThrow(() -> new ResourceNotFoundException(RESOURCE, "Id", propertyId));
             if (user == null || user.getUser() == null) {
                 return PropertyResponse.fromProperty(property);
             }
             return PropertyResponse.fromProperty(user.getUser(), property);
         } catch (ResourceNotFoundException e) {
-            log.error("Failed to find property overview {}", e.getMessage(), e);
+            log.error(FAILED_GET_EXCEPTION + "overview {}", e.getMessage(), e);
             throw e;
         } catch (Exception e) {
-            log.error("Failed to find property overview {}", e.getMessage(), e);
-            throw new RuntimeException("Failed to find property overview", e);
+            log.error(FAILED_GET_EXCEPTION + " overview {}", e.getMessage(), e);
+            throw new RuntimeException(FAILED_GET_EXCEPTION + " overview", e);
         }
     }
 
@@ -110,18 +113,18 @@ public class PropertyService {
         try {
             List<Property> properties = propertyRepository.findByUserId(landlordId);
             if (properties.isEmpty()) {
-                throw new ResourceNotFoundException("Property", "of landlord " + landlordId, properties);
+                throw new ResourceNotFoundException(RESOURCE, "of landlord " + landlordId, properties);
             }
             if (user == null || user.getUser() == null) {
                 return PropertyOverviewResponse.fromProperties(null, properties);
             }
             return PropertyOverviewResponse.fromProperties(user.getUser(), properties);
         } catch (ResourceNotFoundException e) {
-            log.error("Failed to get landlord properties {}", e.getMessage(), e);
+            log.error(FAILED_GET_EXCEPTION + "{}", e.getMessage(), e);
             throw e;
         } catch (Exception e) {
-            log.error("Failed to get landlord properties {}", e.getMessage(), e);
-            throw new RuntimeException("Failed to get landlord properties", e);
+            log.error(FAILED_GET_EXCEPTION + "{}", e.getMessage(), e);
+            throw new RuntimeException(FAILED_GET_EXCEPTION, e);
         }
     }
 
@@ -130,7 +133,7 @@ public class PropertyService {
     public PropertyResponse editPropertyContact(CustomUserDetails user, UUID propertyId, EditPropertyContactRequest request) {
         try {
             Property property = propertyRepository.findById(propertyId)
-                    .orElseThrow(() -> new ResourceNotFoundException("Property", "Id", propertyId));
+                    .orElseThrow(() -> new ResourceNotFoundException(RESOURCE, "Id", propertyId));
             if (user == null || user.getUser() == null) {
                 throw new ResourceForbiddenException("Unauthorized to edit property", property);
             }
@@ -144,10 +147,10 @@ public class PropertyService {
             property = propertyRepository.save(property);
             return PropertyResponse.fromProperty(property);
         } catch (ResourceForbiddenException | ResourceNotFoundException e) {
-            log.error("Failed to edit property contact {}", e.getMessage(), e);
+            log.error(FAILED_EDIT_EXCEPTION + " info {}", e.getMessage(), e);
             throw e;
         } catch (Exception e) {
-            log.error("Failed to edit property contact", e);
+            log.error(FAILED_EDIT_EXCEPTION + " info {}", e.getMessage(), e);
             throw new RuntimeException("Failed to edit property contact", e);
         }
     }
@@ -156,7 +159,7 @@ public class PropertyService {
     public PropertyResponse editPropertyInfo(CustomUserDetails user, UUID propertyId, EditPropertyInfoRequest request) {
         try {
             Property property = propertyRepository.findById(propertyId)
-                    .orElseThrow(() -> new ResourceNotFoundException("Property", "Id", propertyId));
+                    .orElseThrow(() -> new ResourceNotFoundException(RESOURCE, "Id", propertyId));
             if (user == null || user.getUser() == null) {
                 throw new ResourceForbiddenException("Unauthorized to edit property", property);
             }
@@ -170,11 +173,11 @@ public class PropertyService {
             property = propertyRepository.save(property);
             return PropertyResponse.fromProperty(property);
         } catch (ResourceForbiddenException | ResourceNotFoundException e) {
-            log.error("Failed to edit property info {}", e.getMessage(), e);
+            log.error(FAILED_EDIT_EXCEPTION + " info {}", e.getMessage(), e);
             throw e;
         } catch (Exception e) {
-            log.error("Failed to edit property info", e);
-            throw new RuntimeException("Failed to edit property info", e);
+            log.error(FAILED_EDIT_EXCEPTION + " info {}", e.getMessage(), e);
+            throw new RuntimeException(FAILED_EDIT_EXCEPTION + "info " + e.getMessage());
         }
     }
 }

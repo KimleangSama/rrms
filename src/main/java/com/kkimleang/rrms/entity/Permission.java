@@ -2,11 +2,15 @@ package com.kkimleang.rrms.entity;
 
 import com.redis.om.spring.annotations.*;
 import jakarta.persistence.*;
+
 import java.io.*;
 import java.util.*;
+
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.*;
 
+@Slf4j
 @Getter
 @Setter
 @ToString
@@ -22,6 +26,7 @@ public class Permission implements Serializable, GrantedAuthority {
     private String name;
 
     public Permission() {
+        log.info("Permission entity created");
     }
 
     @Override
