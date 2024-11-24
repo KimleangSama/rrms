@@ -18,7 +18,7 @@ public class CustomUserDetails implements OAuth2User, UserDetails, Serializable 
 
     @Getter
     private final User user;
-    private final Map<String, Object> attributes;
+    private transient final Map<String, Object> attributes;
 
     public CustomUserDetails(User user, Map<String, Object> attributes) {
         this.user = user;

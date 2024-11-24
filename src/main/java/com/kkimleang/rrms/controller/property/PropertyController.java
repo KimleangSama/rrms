@@ -37,9 +37,10 @@ public class PropertyController {
                     .setErrors(e.getMessage());
         } catch (DataIntegrityViolationException e) {
             log.error("Failed to create property {}", e.getMessage(), e);
-            return Response.<PropertyResponse>exception()
+            return Response.<PropertyResponse>badRequest()
                     .setErrors(e.getMessage());
         } catch (Exception e) {
+            log.error("Failed to create property {}", e.getMessage(), e);
             return Response.<PropertyResponse>exception()
                     .setErrors(e.getMessage());
         }

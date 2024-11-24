@@ -24,10 +24,11 @@ import org.springframework.stereotype.*;
 @RequiredArgsConstructor
 public class PropertyService {
     private final String RESOURCE = "Property";
-    private final String FAILED_GET_EXCEPTION = "Failed to get property ";
-    private final String FAILED_EDIT_EXCEPTION = "Failed to edit property ";
+    private final String FAILED_GET_EXCEPTION = "Failed to get property {}";
+    private final String FAILED_EDIT_EXCEPTION = "Failed to edit property {}";
     private final PropertyRepository propertyRepository;
 
+    @Transactional
     public PropertyResponse createProperty(CustomUserDetails user, CreatePropertyRequest request) {
         try {
             if (user == null || user.getUser() == null) {
@@ -61,10 +62,10 @@ public class PropertyService {
             List<Property> propertyList = properties.getContent();
             return PropertyResponse.fromProperties(propertyList);
         } catch (ResourceNotFoundException e) {
-            log.error(FAILED_GET_EXCEPTION + "{}", e.getMessage(), e);
+            log.error(FAILED_GET_EXCEPTION, e.getMessage(), e);
             throw e;
         } catch (Exception e) {
-            log.error(FAILED_GET_EXCEPTION + "{}", e.getMessage(), e);
+            log.error(FAILED_GET_EXCEPTION, e.getMessage(), e);
             throw new RuntimeException("Failed to get all properties", e);
         }
     }
@@ -80,10 +81,10 @@ public class PropertyService {
             }
             return PropertyResponse.fromProperty(user.getUser(), property);
         } catch (ResourceNotFoundException e) {
-            log.error(FAILED_GET_EXCEPTION + "{}", e.getMessage(), e);
+            log.error(FAILED_GET_EXCEPTION, e.getMessage(), e);
             throw e;
         } catch (Exception e) {
-            log.error(FAILED_GET_EXCEPTION + "{}", e.getMessage(), e);
+            log.error(FAILED_GET_EXCEPTION, e.getMessage(), e);
             throw new RuntimeException(FAILED_GET_EXCEPTION, e);
         }
     }
@@ -99,10 +100,10 @@ public class PropertyService {
             }
             return PropertyResponse.fromProperty(user.getUser(), property);
         } catch (ResourceNotFoundException e) {
-            log.error(FAILED_GET_EXCEPTION + "overview {}", e.getMessage(), e);
+            log.error(FAILED_GET_EXCEPTION, e.getMessage(), e);
             throw e;
         } catch (Exception e) {
-            log.error(FAILED_GET_EXCEPTION + " overview {}", e.getMessage(), e);
+            log.error(FAILED_GET_EXCEPTION, e.getMessage(), e);
             throw new RuntimeException(FAILED_GET_EXCEPTION + " overview", e);
         }
     }
@@ -120,10 +121,10 @@ public class PropertyService {
             }
             return PropertyOverviewResponse.fromProperties(user.getUser(), properties);
         } catch (ResourceNotFoundException e) {
-            log.error(FAILED_GET_EXCEPTION + "{}", e.getMessage(), e);
+            log.error(FAILED_GET_EXCEPTION, e.getMessage(), e);
             throw e;
         } catch (Exception e) {
-            log.error(FAILED_GET_EXCEPTION + "{}", e.getMessage(), e);
+            log.error(FAILED_GET_EXCEPTION, e.getMessage(), e);
             throw new RuntimeException(FAILED_GET_EXCEPTION, e);
         }
     }
@@ -147,11 +148,11 @@ public class PropertyService {
             property = propertyRepository.save(property);
             return PropertyResponse.fromProperty(property);
         } catch (ResourceForbiddenException | ResourceNotFoundException e) {
-            log.error(FAILED_EDIT_EXCEPTION + " info {}", e.getMessage(), e);
+            log.error(FAILED_EDIT_EXCEPTION, e.getMessage(), e);
             throw e;
         } catch (Exception e) {
-            log.error(FAILED_EDIT_EXCEPTION + " info {}", e.getMessage(), e);
-            throw new RuntimeException("Failed to edit property contact", e);
+            log.error(FAILED_EDIT_EXCEPTION, e.getMessage(), e);
+            throw new ResourceEditionException(FAILED_EDIT_EXCEPTION + "info " + e.getMessage());
         }
     }
 
@@ -173,11 +174,11 @@ public class PropertyService {
             property = propertyRepository.save(property);
             return PropertyResponse.fromProperty(property);
         } catch (ResourceForbiddenException | ResourceNotFoundException e) {
-            log.error(FAILED_EDIT_EXCEPTION + " info {}", e.getMessage(), e);
+            log.error(FAILED_EDIT_EXCEPTION, e.getMessage(), e);
             throw e;
         } catch (Exception e) {
-            log.error(FAILED_EDIT_EXCEPTION + " info {}", e.getMessage(), e);
-            throw new RuntimeException(FAILED_EDIT_EXCEPTION + "info " + e.getMessage());
+            log.error(FAILED_EDIT_EXCEPTION, e.getMessage(), e);
+            throw new ResourceEditionException(FAILED_EDIT_EXCEPTION + "info " + e.getMessage());
         }
     }
 }

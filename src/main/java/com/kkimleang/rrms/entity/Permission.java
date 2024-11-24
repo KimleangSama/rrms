@@ -25,10 +25,6 @@ public class Permission implements Serializable, GrantedAuthority {
 
     private String name;
 
-    public Permission() {
-        log.info("Permission entity created");
-    }
-
     @Override
     public String getAuthority() {
         return name;

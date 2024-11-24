@@ -12,9 +12,11 @@ import com.kkimleang.rrms.repository.user.*;
 import com.kkimleang.rrms.util.*;
 import jakarta.servlet.http.*;
 import jakarta.transaction.*;
+
 import java.io.*;
 import java.time.*;
 import java.util.*;
+
 import lombok.*;
 import lombok.extern.slf4j.*;
 import org.springframework.amqp.rabbit.core.*;
@@ -43,6 +45,9 @@ public class UserService {
     private String emailExchange;
     @Value("${rabbitmq.binding.email.name}")
     private String emailRoutingKey;
+
+    private final String FAILED_GET_EXCEPTION = "Failed to get user {}";
+    private final String FAILED_EDIT_EXCEPTION = "Failed to edit user {}";
 
     @Cacheable(value = "user", key = "#email")
     public User findByEmail(String email) {
@@ -153,7 +158,7 @@ public class UserService {
                     .orElseThrow(() -> new ResourceNotFoundException("User", "Id", id));
             return Optional.of(filterIsDeleted(user));
         } catch (Exception e) {
-            log.error("Cannot find user with id: {}", id, e);
+            log.error(FAILED_GET_EXCEPTION, id, e);
             throw new RuntimeException("Error while finding user with id: " + id + " with message: " + e.getMessage());
         }
     }
@@ -208,10 +213,10 @@ public class UserService {
             targetUser.setUpdatedBy(user.getUser().getId());
             return userRepository.save(targetUser);
         } catch (ResourceNotFoundException e) {
-            log.error("Cannot find user with id: {}", targetId, e);
+            log.error(FAILED_GET_EXCEPTION, targetId, e);
             throw e;
         } catch (Exception e) {
-            log.error("Cannot edit user with id: {}", targetId, e);
+            log.error(FAILED_EDIT_EXCEPTION, targetId, e);
             throw new RuntimeException("Cannot edit user with id: " + targetId);
         }
     }
@@ -230,10 +235,10 @@ public class UserService {
             targetUser.setUpdatedBy(user.getUser().getId());
             return userRepository.save(targetUser);
         } catch (ResourceNotFoundException e) {
-            log.error("Cannot find user with id: {}", targetId, e);
+            log.error(FAILED_GET_EXCEPTION, targetId, e);
             throw e;
         } catch (Exception e) {
-            log.error("Cannot edit user with id: {}", targetId, e);
+            log.error(FAILED_EDIT_EXCEPTION, targetId, e);
             throw new RuntimeException("Cannot edit user with id: " + targetId);
         }
     }
