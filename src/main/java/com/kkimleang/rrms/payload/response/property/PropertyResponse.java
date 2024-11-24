@@ -1,5 +1,6 @@
 package com.kkimleang.rrms.payload.response.property;
 
+import com.kkimleang.rrms.config.ModelMapperConfig;
 import com.kkimleang.rrms.entity.*;
 import com.kkimleang.rrms.enums.property.*;
 
@@ -8,7 +9,13 @@ import java.util.*;
 
 import com.kkimleang.rrms.exception.ResourceDeletedException;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.Condition;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
+import org.springframework.beans.factory.annotation.Autowired;
 
+@Slf4j
 @Getter
 @Setter
 @ToString
@@ -31,11 +38,11 @@ public class PropertyResponse implements Serializable {
     private String addressGMap;
     private Double latitude;
     private Double longitude;
-    private String status;
-    private String type;
+    private String propertyStatus;
+    private String propertyType;
     private Set<CharacteristicResponse> characteristics;
 
-    // User Info
+    // User Information
     private UUID landlordId;
     private String landlordFullname;
     private String profilePicture;
@@ -44,13 +51,9 @@ public class PropertyResponse implements Serializable {
     public static PropertyResponse fromProperty(Property property) {
         if (property.getDeletedBy() == null && property.getDeletedAt() == null) {
             PropertyResponse propertyResponse = mappingProperty(property);
-            try {
-                propertyResponse.setStatus(property.getPropertyStatus().name());
-                propertyResponse.setType(property.getPropertyType().name());
-            } catch (Exception e) {
-                propertyResponse.setStatus(PropertyStatus.PENDING.name());
-                propertyResponse.setType(PropertyType.HOUSE.name());
-            }
+            propertyResponse.setLandlordId(property.getUser().getId());
+            propertyResponse.setLandlordFullname(property.getUser().getFullname());
+            propertyResponse.setProfilePicture(property.getUser().getProfilePicture());
             propertyResponse.setCharacteristics(
                     CharacteristicResponse.fromCharacteristics(property.getPropertyCharacteristics())
             );
@@ -61,56 +64,42 @@ public class PropertyResponse implements Serializable {
     }
 
     public static PropertyResponse fromProperty(User user, Property property) {
-        if (property.getDeletedBy() == null && property.getDeletedAt() == null) {
-            PropertyResponse propertyResponse = mappingProperty(property);
-            if (user.getId().equals(property.getUser().getId())) {
-                propertyResponse.setHasPrivilege(true);
-            }
-            try {
-                propertyResponse.setStatus(property.getPropertyStatus().name());
-                propertyResponse.setType(property.getPropertyType().name());
-            } catch (Exception e) {
-                propertyResponse.setStatus(PropertyStatus.PENDING.name());
-                propertyResponse.setType(PropertyType.HOUSE.name());
-            }
-            propertyResponse.setCharacteristics(
-                    CharacteristicResponse.fromCharacteristics(property.getPropertyCharacteristics())
-            );
-            return propertyResponse;
-        } else {
-            throw new ResourceDeletedException("Property", property.getDeletedAt().toString());
+        PropertyResponse propertyResponse = fromProperty(property);
+        if (user.getId().equals(property.getUser().getId())) {
+            propertyResponse.setHasPrivilege(true);
         }
+        return propertyResponse;
     }
+
+    private final static String INFO = "Property {} is deleted at {}";
 
     public static List<PropertyResponse> fromProperties(List<Property> properties) {
         List<PropertyResponse> propertyResponses = new ArrayList<>();
         for (Property property : properties) {
-            propertyResponses.add(fromProperty(property));
+            try {
+                propertyResponses.add(fromProperty(property));
+            } catch (ResourceDeletedException e) {
+                log.info(INFO, property.getId(), property.getDeletedAt());
+            }
+        }
+        return propertyResponses;
+    }
+
+    public static List<PropertyResponse> fromProperties(User user, List<Property> properties) {
+        List<PropertyResponse> propertyResponses = new ArrayList<>();
+        for (Property property : properties) {
+            try {
+                propertyResponses.add(fromProperty(user, property));
+            } catch (ResourceDeletedException e) {
+                log.info(INFO, property.getId(), property.getDeletedAt());
+            }
         }
         return propertyResponses;
     }
 
     private static PropertyResponse mappingProperty(Property property) {
         PropertyResponse propertyResponse = new PropertyResponse();
-        propertyResponse.setId(property.getId());
-        propertyResponse.setName(property.getName());
-        propertyResponse.setDescription(property.getDescription());
-        propertyResponse.setEmail(property.getEmail());
-        propertyResponse.setContact(property.getContact());
-        propertyResponse.setWebsite(property.getWebsite());
-        propertyResponse.setPictureCover(property.getPictureCover());
-        propertyResponse.setAddressProof(property.getAddressProof());
-        propertyResponse.setVillage(property.getVillage());
-        propertyResponse.setCommune(property.getCommune());
-        propertyResponse.setDistrict(property.getDistrict());
-        propertyResponse.setProvince(property.getProvince());
-        propertyResponse.setZipCode(property.getZipCode());
-        propertyResponse.setAddressGMap(property.getAddressGMap());
-        propertyResponse.setLatitude(property.getLatitude());
-        propertyResponse.setLongitude(property.getLongitude());
-        propertyResponse.setLandlordId(property.getUser().getId());
-        propertyResponse.setLandlordFullname(property.getUser().getFullname());
-        propertyResponse.setProfilePicture(property.getUser().getProfilePicture());
+        ModelMapperConfig.modelMapper().map(property, propertyResponse);
         return propertyResponse;
     }
 }

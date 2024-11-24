@@ -94,7 +94,7 @@ public class User extends BaseEntityAudit {
     private String preferredLocation;
     private Double preferredLatitude;
     private Double preferredLongitude;
-    private Double preferredRadius;
+    private Double preferredRadius = 5.0;
 
     @Column(name = "emergency_contact")
     private String emergencyContact;

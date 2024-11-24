@@ -201,4 +201,22 @@ public class PropertyService {
     private boolean withPrivilege(CustomUserDetails user, Property property) {
         return user == null || user.getUser() == null || !property.getUser().getId().equals(user.getUser().getId());
     }
+
+    public List<PropertyResponse> getRecommendedProperties(CustomUserDetails user) {
+        try {
+            User currentUser = user.getUser();
+            List<Property> properties = propertyRepository.findNearbyProperties(
+                    currentUser.getPreferredLatitude(),
+                    currentUser.getPreferredLongitude(),
+                    currentUser.getPreferredRadius()
+            );
+            return PropertyResponse.fromProperties(currentUser, properties);
+        } catch (ResourceNotFoundException | ResourceEditionException e) {
+            log.error(FAILED_GET_EXCEPTION, e.getMessage(), e);
+            throw e;
+        } catch (Exception e) {
+            log.error(FAILED_GET_EXCEPTION, e.getMessage(), e);
+            throw new RuntimeException("Failed to get all properties" + e.getMessage());
+        }
+    }
 }

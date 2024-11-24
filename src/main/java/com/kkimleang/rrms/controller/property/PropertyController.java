@@ -11,6 +11,7 @@ import com.kkimleang.rrms.service.user.*;
 
 import java.util.*;
 
+import jakarta.transaction.Transactional;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -170,6 +171,27 @@ public class PropertyController {
                     .setErrors(e.getMessage());
         } catch (Exception e) {
             return Response.<PropertyResponse>exception()
+                    .setErrors(e.getMessage());
+        }
+    }
+
+    @Transactional
+    @GetMapping("/recommended")
+    public Response<List<PropertyResponse>> getRecommendedProperties(
+            @CurrentUser CustomUserDetails user
+    ) {
+        try {
+            if (user == null || user.getUser() == null) {
+                throw new ResourceForbiddenException("You must login and set preferred location to get recommended properties.", "properties");
+            }
+            List<PropertyResponse> propertyResponses = propertyService.getRecommendedProperties(user);
+            return Response.<List<PropertyResponse>>ok()
+                    .setPayload(propertyResponses);
+        } catch (ResourceNotFoundException e) {
+            return Response.<List<PropertyResponse>>notFound()
+                    .setErrors(e.getMessage());
+        } catch (Exception e) {
+            return Response.<List<PropertyResponse>>exception()
                     .setErrors(e.getMessage());
         }
     }
