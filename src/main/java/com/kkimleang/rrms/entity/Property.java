@@ -1,7 +1,6 @@
 package com.kkimleang.rrms.entity;
 
 import com.kkimleang.rrms.enums.property.*;
-import com.kkimleang.rrms.payload.request.property.*;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 

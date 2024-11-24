@@ -39,6 +39,9 @@ create table if not exists users
             unique,
     preferred_language     varchar(255),
     preferred_location     varchar(255),
+    preferred_latitude     double precision,
+    preferred_longitude    double precision,
+    preferred_radius       double precision,
     profile_picture        varchar(255),
     provider               varchar(255) not null
         constraint users_provider_check
