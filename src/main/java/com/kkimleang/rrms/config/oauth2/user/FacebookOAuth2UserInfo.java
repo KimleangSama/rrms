@@ -23,7 +23,6 @@ public final class FacebookOAuth2UserInfo extends OAuth2UserInfo {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public String getProfilePicture() {
         if (attributes.containsKey("picture")) {
             Map<String, Object> pictureObj = (Map<String, Object>) attributes.get("picture");
