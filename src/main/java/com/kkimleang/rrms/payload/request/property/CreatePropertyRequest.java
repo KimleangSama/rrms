@@ -10,6 +10,7 @@ public class CreatePropertyRequest {
     private String name;
     private String email;
     private String contact;
+    private String website;
     private String description;
     private String pictureCover;
     private String addressProof;

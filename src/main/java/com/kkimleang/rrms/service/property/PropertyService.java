@@ -24,18 +24,19 @@ import org.springframework.stereotype.*;
 @RequiredArgsConstructor
 public class PropertyService {
     private final String RESOURCE = "Property";
-    private final String FAILED_GET_EXCEPTION = "Failed to get property ";
-    private final String FAILED_EDIT_EXCEPTION = "Failed to edit property ";
+    private final String FAILED_GET_EXCEPTION = "Failed to get property {} ";
+    private final String FAILED_EDIT_EXCEPTION = "Failed to edit property {} ";
     private final PropertyRepository propertyRepository;
 
+    @Transactional
     public PropertyResponse createProperty(CustomUserDetails user, CreatePropertyRequest request) {
         try {
             if (user == null || user.getUser() == null) {
-                throw new ResourceCreationException("Unauthorized to create property", request);
+                throw new ResourceForbiddenException("Unauthorized to create property", request);
             }
             User currentUser = user.getUser();
             if (propertyRepository.existsByUserIdAndName(currentUser.getId(), request.getName())) {
-                throw new ResourceCreationException(RESOURCE + " with name " + request.getName() + " already exists in your assets", currentUser.getUsername());
+                throw new ResourceForbiddenException(RESOURCE + " with name " + request.getName() + " already exists in your assets", currentUser.getUsername());
             }
             Property property = new Property();
             PropertyMapper.createPropertyFromCreatePropertyRequest(property, request);
@@ -43,7 +44,7 @@ public class PropertyService {
             property.setCreatedBy(currentUser.getId());
             property = propertyRepository.save(property);
             return PropertyResponse.fromProperty(property);
-        } catch (ResourceCreationException e) {
+        } catch (ResourceForbiddenException e) {
             log.error("Failed to create property {}", e.getMessage(), e);
             throw e;
         }
@@ -60,11 +61,11 @@ public class PropertyService {
             }
             List<Property> propertyList = properties.getContent();
             return PropertyResponse.fromProperties(propertyList);
-        } catch (ResourceNotFoundException e) {
-            log.error(FAILED_GET_EXCEPTION + "{}", e.getMessage(), e);
+        } catch (ResourceNotFoundException | ResourceEditionException e) {
+            log.error(FAILED_GET_EXCEPTION, e.getMessage(), e);
             throw e;
         } catch (Exception e) {
-            log.error(FAILED_GET_EXCEPTION + "{}", e.getMessage(), e);
+            log.error(FAILED_GET_EXCEPTION, e.getMessage(), e);
             throw new RuntimeException("Failed to get all properties", e);
         }
     }
@@ -79,11 +80,11 @@ public class PropertyService {
                 return PropertyResponse.fromProperty(property);
             }
             return PropertyResponse.fromProperty(user.getUser(), property);
-        } catch (ResourceNotFoundException e) {
-            log.error(FAILED_GET_EXCEPTION + "{}", e.getMessage(), e);
+        } catch (ResourceNotFoundException | ResourceEditionException e) {
+            log.error(FAILED_GET_EXCEPTION, e.getMessage(), e);
             throw e;
         } catch (Exception e) {
-            log.error(FAILED_GET_EXCEPTION + "{}", e.getMessage(), e);
+            log.error(FAILED_GET_EXCEPTION, e.getMessage(), e);
             throw new RuntimeException(FAILED_GET_EXCEPTION, e);
         }
     }
@@ -98,11 +99,11 @@ public class PropertyService {
                 return PropertyResponse.fromProperty(property);
             }
             return PropertyResponse.fromProperty(user.getUser(), property);
-        } catch (ResourceNotFoundException e) {
-            log.error(FAILED_GET_EXCEPTION + "overview {}", e.getMessage(), e);
+        } catch (ResourceNotFoundException | ResourceEditionException e) {
+            log.error(FAILED_GET_EXCEPTION, e.getMessage(), e);
             throw e;
         } catch (Exception e) {
-            log.error(FAILED_GET_EXCEPTION + " overview {}", e.getMessage(), e);
+            log.error(FAILED_GET_EXCEPTION, e.getMessage(), e);
             throw new RuntimeException(FAILED_GET_EXCEPTION + " overview", e);
         }
     }
@@ -119,11 +120,11 @@ public class PropertyService {
                 return PropertyOverviewResponse.fromProperties(null, properties);
             }
             return PropertyOverviewResponse.fromProperties(user.getUser(), properties);
-        } catch (ResourceNotFoundException e) {
-            log.error(FAILED_GET_EXCEPTION + "{}", e.getMessage(), e);
+        } catch (ResourceNotFoundException | ResourceEditionException e) {
+            log.error(FAILED_GET_EXCEPTION, e.getMessage(), e);
             throw e;
         } catch (Exception e) {
-            log.error(FAILED_GET_EXCEPTION + "{}", e.getMessage(), e);
+            log.error(FAILED_GET_EXCEPTION, e.getMessage(), e);
             throw new RuntimeException(FAILED_GET_EXCEPTION, e);
         }
     }
@@ -134,24 +135,20 @@ public class PropertyService {
         try {
             Property property = propertyRepository.findById(propertyId)
                     .orElseThrow(() -> new ResourceNotFoundException(RESOURCE, "Id", propertyId));
-            if (user == null || user.getUser() == null) {
-                throw new ResourceForbiddenException("Unauthorized to edit property", property);
-            }
-            User currentUser = user.getUser();
-            if (!property.getUser().getId().equals(currentUser.getId())) {
-                throw new ResourceForbiddenException("Unauthorized to edit property", property);
+            if (withPrivilege(user, property)) {
+                throw new ResourceForbiddenException("Unauthorized to delete property", property);
             }
             PropertyMapper.updatePropertyContactFromEditPropertyContactRequest(property, request);
-            property.setUpdatedBy(currentUser.getId());
+            property.setUpdatedBy(user.getUser().getId());
             property.setUpdatedAt(Instant.now());
             property = propertyRepository.save(property);
             return PropertyResponse.fromProperty(property);
         } catch (ResourceForbiddenException | ResourceNotFoundException e) {
-            log.error(FAILED_EDIT_EXCEPTION + " info {}", e.getMessage(), e);
+            log.error(FAILED_EDIT_EXCEPTION, e.getMessage(), e);
             throw e;
         } catch (Exception e) {
-            log.error(FAILED_EDIT_EXCEPTION + " info {}", e.getMessage(), e);
-            throw new RuntimeException("Failed to edit property contact", e);
+            log.error(FAILED_EDIT_EXCEPTION, e.getMessage(), e);
+            throw new ResourceEditionException(FAILED_EDIT_EXCEPTION + "info " + e.getMessage());
         }
     }
 
@@ -160,24 +157,48 @@ public class PropertyService {
         try {
             Property property = propertyRepository.findById(propertyId)
                     .orElseThrow(() -> new ResourceNotFoundException(RESOURCE, "Id", propertyId));
-            if (user == null || user.getUser() == null) {
-                throw new ResourceForbiddenException("Unauthorized to edit property", property);
-            }
-            User currentUser = user.getUser();
-            if (!property.getUser().getId().equals(currentUser.getId())) {
-                throw new ResourceForbiddenException("Unauthorized to edit property", property);
+            if (withPrivilege(user, property)) {
+                throw new ResourceForbiddenException("Unauthorized to delete property", property);
             }
             PropertyMapper.updatePropertyInfoFromEditPropertyInfoRequest(property, request);
-            property.setUpdatedBy(currentUser.getId());
+            property.setUpdatedBy(user.getUser().getId());
             property.setUpdatedAt(Instant.now());
             property = propertyRepository.save(property);
             return PropertyResponse.fromProperty(property);
         } catch (ResourceForbiddenException | ResourceNotFoundException e) {
-            log.error(FAILED_EDIT_EXCEPTION + " info {}", e.getMessage(), e);
+            log.error(FAILED_EDIT_EXCEPTION, e.getMessage(), e);
+            throw e;
+        } catch (ResourceEditionException e) {
+            log.error(FAILED_GET_EXCEPTION, e.getMessage(), e);
             throw e;
         } catch (Exception e) {
-            log.error(FAILED_EDIT_EXCEPTION + " info {}", e.getMessage(), e);
-            throw new RuntimeException(FAILED_EDIT_EXCEPTION + "info " + e.getMessage());
+            log.error(FAILED_EDIT_EXCEPTION, e.getMessage(), e);
+            throw new ResourceEditionException(FAILED_EDIT_EXCEPTION + "info " + e.getMessage());
         }
+    }
+
+    public PropertyResponse deleteProperty(CustomUserDetails user, UUID propertyId) {
+        try {
+            Property property = propertyRepository.findById(propertyId)
+                    .orElseThrow(() -> new ResourceNotFoundException(RESOURCE, "Id", propertyId));
+            PropertyResponse propertyResponse = PropertyResponse.fromProperty(property);
+            if (withPrivilege(user, property)) {
+                throw new ResourceForbiddenException("Unauthorized to delete property", property);
+            }
+            property.setDeletedBy(user.getUser().getId());
+            property.setDeletedAt(Instant.now());
+            propertyRepository.save(property);
+            return propertyResponse;
+        } catch (ResourceForbiddenException | ResourceNotFoundException | ResourceDeletedException e) {
+            log.error(FAILED_GET_EXCEPTION, e.getMessage(), e);
+            throw e;
+        } catch (Exception e) {
+            log.error(FAILED_EDIT_EXCEPTION, e.getMessage(), e);
+            throw new ResourceEditionException(FAILED_EDIT_EXCEPTION + e.getMessage());
+        }
+    }
+
+    private boolean withPrivilege(CustomUserDetails user, Property property) {
+        return user == null || user.getUser() == null || !property.getUser().getId().equals(user.getUser().getId());
     }
 }
