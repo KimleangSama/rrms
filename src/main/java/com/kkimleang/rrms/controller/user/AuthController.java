@@ -1,4 +1,4 @@
-package com.kkimleang.rrms.controller;
+package com.kkimleang.rrms.controller.user;
 
 import com.kkimleang.rrms.annotation.*;
 import com.kkimleang.rrms.entity.User;

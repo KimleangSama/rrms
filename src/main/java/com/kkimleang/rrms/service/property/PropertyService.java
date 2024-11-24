@@ -7,9 +7,15 @@ import com.kkimleang.rrms.payload.request.property.*;
 import com.kkimleang.rrms.payload.response.property.*;
 import com.kkimleang.rrms.repository.property.*;
 import com.kkimleang.rrms.service.user.*;
+
+import java.time.Instant;
 import java.util.*;
+
+import jakarta.transaction.Transactional;
 import lombok.*;
 import lombok.extern.slf4j.*;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.*;
 
@@ -26,7 +32,7 @@ public class PropertyService {
             }
             User currentUser = user.getUser();
             if (propertyRepository.existsByUserIdAndName(currentUser.getId(), request.getName())) {
-                throw new ResourceCreationException("Property with name " + request.getName() + " already exists in your assets of ", currentUser.getUsername());
+                throw new ResourceCreationException("Property with name " + request.getName() + " already exists in your assets", currentUser.getUsername());
             }
             Property property = new Property();
             PropertyMapper.createPropertyFromCreatePropertyRequest(property, request);
@@ -35,14 +41,13 @@ public class PropertyService {
             property = propertyRepository.save(property);
             return PropertyResponse.fromProperty(property);
         } catch (ResourceCreationException e) {
-            log.error("Failed to create property", e);
+            log.error("Failed to create property {}", e.getMessage(), e);
             throw e;
-        } catch (Exception e) {
-            log.error("Failed to create property", e);
-            throw new RuntimeException("Failed to create property", e);
         }
     }
 
+    @Cacheable(value = "properties")
+    @Transactional
     public List<PropertyResponse> getPagingProperties(int page, int size) {
         try {
             Pageable pageable = PageRequest.of(page, size);
@@ -58,6 +63,118 @@ public class PropertyService {
         } catch (Exception e) {
             log.error("Failed to get all properties", e);
             throw new RuntimeException("Failed to get all properties", e);
+        }
+    }
+
+    @Cacheable(value = "properties", key = "#propertyId")
+//    @Transactional
+    public PropertyResponse findPropertyById(CustomUserDetails user, UUID propertyId) {
+        try {
+            Property property = propertyRepository.findById(propertyId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Property", "Id", propertyId));
+            if (user == null || user.getUser() == null) {
+                return PropertyResponse.fromProperty(property);
+            }
+            return PropertyResponse.fromProperty(user.getUser(), property);
+        } catch (ResourceNotFoundException e) {
+            log.error("Failed to find property {}", e.getMessage(), e);
+            throw e;
+        } catch (Exception e) {
+            log.error("Failed to find property {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to find property", e);
+        }
+    }
+
+    @Cacheable(value = "properties", key = "#propertyId")
+    @Transactional
+    public PropertyResponse findPropertyOverviewById(CustomUserDetails user, UUID propertyId) {
+        try {
+            Property property = propertyRepository.findById(propertyId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Property", "Id", propertyId));
+            if (user == null || user.getUser() == null) {
+                return PropertyResponse.fromProperty(property);
+            }
+            return PropertyResponse.fromProperty(user.getUser(), property);
+        } catch (ResourceNotFoundException e) {
+            log.error("Failed to find property overview {}", e.getMessage(), e);
+            throw e;
+        } catch (Exception e) {
+            log.error("Failed to find property overview {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to find property overview", e);
+        }
+    }
+
+    @Cacheable(value = "properties", key = "#landlordId")
+    @Transactional
+    public List<PropertyOverviewResponse> getLandlordProperties(CustomUserDetails user, UUID landlordId) {
+        try {
+            List<Property> properties = propertyRepository.findByUserId(landlordId);
+            if (properties.isEmpty()) {
+                throw new ResourceNotFoundException("Property", "of landlord " + landlordId, properties);
+            }
+            if (user == null || user.getUser() == null) {
+                return PropertyOverviewResponse.fromProperties(null, properties);
+            }
+            return PropertyOverviewResponse.fromProperties(user.getUser(), properties);
+        } catch (ResourceNotFoundException e) {
+            log.error("Failed to get landlord properties {}", e.getMessage(), e);
+            throw e;
+        } catch (Exception e) {
+            log.error("Failed to get landlord properties {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to get landlord properties", e);
+        }
+    }
+
+    @CachePut(value = "properties", key = "#propertyId")
+    @Transactional
+    public PropertyResponse editPropertyContact(CustomUserDetails user, UUID propertyId, EditPropertyContactRequest request) {
+        try {
+            Property property = propertyRepository.findById(propertyId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Property", "Id", propertyId));
+            if (user == null || user.getUser() == null) {
+                throw new ResourceForbiddenException("Unauthorized to edit property", property);
+            }
+            User currentUser = user.getUser();
+            if (!property.getUser().getId().equals(currentUser.getId())) {
+                throw new ResourceForbiddenException("Unauthorized to edit property", property);
+            }
+            PropertyMapper.updatePropertyContactFromEditPropertyContactRequest(property, request);
+            property.setUpdatedBy(currentUser.getId());
+            property.setUpdatedAt(Instant.now());
+            property = propertyRepository.save(property);
+            return PropertyResponse.fromProperty(property);
+        } catch (ResourceForbiddenException | ResourceNotFoundException e) {
+            log.error("Failed to edit property contact {}", e.getMessage(), e);
+            throw e;
+        } catch (Exception e) {
+            log.error("Failed to edit property contact", e);
+            throw new RuntimeException("Failed to edit property contact", e);
+        }
+    }
+
+    @Transactional
+    public PropertyResponse editPropertyInfo(CustomUserDetails user, UUID propertyId, EditPropertyInfoRequest request) {
+        try {
+            Property property = propertyRepository.findById(propertyId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Property", "Id", propertyId));
+            if (user == null || user.getUser() == null) {
+                throw new ResourceForbiddenException("Unauthorized to edit property", property);
+            }
+            User currentUser = user.getUser();
+            if (!property.getUser().getId().equals(currentUser.getId())) {
+                throw new ResourceForbiddenException("Unauthorized to edit property", property);
+            }
+            PropertyMapper.updatePropertyInfoFromEditPropertyInfoRequest(property, request);
+            property.setUpdatedBy(currentUser.getId());
+            property.setUpdatedAt(Instant.now());
+            property = propertyRepository.save(property);
+            return PropertyResponse.fromProperty(property);
+        } catch (ResourceForbiddenException | ResourceNotFoundException e) {
+            log.error("Failed to edit property info {}", e.getMessage(), e);
+            throw e;
+        } catch (Exception e) {
+            log.error("Failed to edit property info", e);
+            throw new RuntimeException("Failed to edit property info", e);
         }
     }
 }

@@ -4,8 +4,10 @@ import com.kkimleang.rrms.enums.property.*;
 import com.kkimleang.rrms.payload.request.property.*;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
+
 import java.io.*;
 import java.util.*;
+
 import lombok.*;
 import org.springframework.data.redis.core.*;
 
@@ -16,9 +18,6 @@ import org.springframework.data.redis.core.*;
 @Entity
 @Table(name = "properties", uniqueConstraints = {
         @UniqueConstraint(columnNames = {"picture_cover"}, name = "unq_picture_cover"),
-        @UniqueConstraint(columnNames = {"address_proof"}, name = "unq_address_proof"),
-        @UniqueConstraint(columnNames = {"email"}, name = "unq_email"),
-        @UniqueConstraint(columnNames = {"contact"}, name = "unq_contact"),
 })
 public class Property extends BaseEntityAudit {
     @Serial
@@ -42,8 +41,9 @@ public class Property extends BaseEntityAudit {
     private String commune;
     private String district;
     private String province;
-    @NotNull
+
     private String email;
+    private String website;
     @NotNull
     private String contact;
     private String zipCode;

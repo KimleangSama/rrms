@@ -106,8 +106,6 @@ networks:
   monitoring:
     driver: bridge
     name: monitoring
-    external: true
   backend:
     driver: bridge
     name: backend
-    external: true
