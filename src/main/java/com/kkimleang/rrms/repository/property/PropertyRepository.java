@@ -7,5 +7,7 @@ import org.springframework.stereotype.*;
 
 @Repository
 public interface PropertyRepository extends JpaRepository<Property, UUID> {
-    boolean existsByName(String name);
+    boolean existsByUserIdAndName(UUID id, String name);
+
+    List<Property> findByUserId(UUID landlordId);
 }

@@ -9,18 +9,13 @@ create table if not exists properties
     updated_at       timestamp(6) with time zone,
     updated_by       uuid,
     address_gmap     varchar(255) not null,
-    address_proof    varchar(255) not null
-        constraint unq_address_proof
-            unique,
+    address_proof    varchar(255) not null,
     commune          varchar(255),
-    contact          varchar(255)
-        constraint unq_contact
-            unique,
+    contact          varchar(255),
     description      oid,
     district         varchar(255),
-    email            varchar(255)
-        constraint unq_email
-            unique,
+    email            varchar(255),
+    website          varchar(255),
     latitude         double precision,
     longitude        double precision,
     name             varchar(255) not null,

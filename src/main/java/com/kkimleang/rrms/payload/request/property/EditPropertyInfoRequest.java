@@ -1,15 +1,14 @@
 package com.kkimleang.rrms.payload.request.property;
 
-import java.util.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
 @ToString
-public class CreatePropertyRequest {
+public class EditPropertyInfoRequest {
     private String name;
-    private String email;
-    private String contact;
     private String description;
     private String pictureCover;
     private String addressProof;
@@ -23,5 +22,4 @@ public class CreatePropertyRequest {
     private Double longitude;
     private String status;
     private String type;
-    private Set<UUID> characteristics;
 }

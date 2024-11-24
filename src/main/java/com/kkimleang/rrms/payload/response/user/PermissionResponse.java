@@ -1,13 +1,14 @@
 package com.kkimleang.rrms.payload.response.user;
 
 import com.kkimleang.rrms.entity.*;
+import java.io.*;
 import java.util.*;
 import lombok.*;
 
 @Getter
 @Setter
 @ToString
-public class PermissionResponse {
+public class PermissionResponse implements Serializable {
     private UUID id;
     private String name;
 

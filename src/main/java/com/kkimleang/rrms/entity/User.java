@@ -4,9 +4,11 @@ import com.kkimleang.rrms.enums.user.*;
 import com.redis.om.spring.annotations.*;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
+
 import java.io.*;
 import java.time.*;
 import java.util.*;
+
 import lombok.*;
 import org.springframework.data.redis.core.*;
 
@@ -90,6 +92,9 @@ public class User extends BaseEntityAudit {
 
     @Column(name = "preferred_location")
     private String preferredLocation;
+    private Double preferredLatitude;
+    private Double preferredLongitude;
+    private Double preferredRadius;
 
     @Column(name = "emergency_contact")
     private String emergencyContact;

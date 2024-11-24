@@ -1,7 +1,7 @@
 package com.kkimleang.rrms.enums.user;
 
 public enum AuthRole {
-    OWNER,
+    LANDLORD,
     EDITOR,
     USER,
     ADMIN,
