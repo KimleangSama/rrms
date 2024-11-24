@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ResponseStatus(HttpStatus.FORBIDDEN)
 public class ResourceForbiddenException extends RuntimeException {
     private final String message;
-    private final Object resource;
+    private final transient Object resource;
 
     public ResourceForbiddenException(String message, Object resource) {
         super(message);
